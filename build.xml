@@ -35,14 +35,10 @@
       <touch file="${src.dir.resolved}/taoQtiItem/views/js/mathjax/MathJax.js" />
   		<exec 
   			command="npm install" 
-  			logoutput="true" 
-  			passthru="true" 
   			dir="${src.dir.resolved}/tao/views/build" 
   		/>
   		<exec 
   			command="grunt build" 
-  			logoutput="true" 
-  			passthru="true" 
   			dir="${src.dir.resolved}/tao/views/build" 
   		/>
   </target>
