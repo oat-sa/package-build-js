@@ -166,7 +166,7 @@
         </gitcommit>
   			</else>
   		</if>
-      
+
       <gitpush
         repository="${src.dir.resolved}/${extension}"
         destination="origin" />
@@ -193,5 +193,7 @@
 
 
   	</target>
+
+    <target name="build" depends="clone,build-js,push" />
 
 </project>
