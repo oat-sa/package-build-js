@@ -1,4 +1,7 @@
 <project name="build tao js" default="build" basedir=".">
+
+    <property file="../build.properties" />
+
 	<target name="help">
 		<echo msg ="Available Command : " />
 		<exec executable="phing" passthru="true">
@@ -14,16 +17,16 @@
 	</target>
 	<resolvepath propertyName="src.dir.resolved" file="src" />
 
-	<target name="clone" depends="clean,prepare"> 
+	<target name="clone" depends="clean,prepare">
 		<gitclone repository="git@github.com:oat-sa/package-tao.git" targetPath="src" />
-		<gitfetch 
-			repository="${src.dir.resolved}" 		
-			source="origin" 
-			refspec="all_extensions:all_extensions"
+		<gitfetch
+			repository="${src.dir.resolved}"
+			source="origin"
+			refspec="develop:develop"
 		/>
 		<gitcheckout
     		repository="${src.dir.resolved}"
-    		branchname="all_extensions"
+    		branchname="develop"
     	/>
 		<composer command="install" composer="/usr/local/bin/composer">
 			 <arg value="--working-dir" />
@@ -31,19 +34,59 @@
 		</composer>
 	</target>
 
+	<includepath classpath="task" />
+    <taskdef name="taoinstall" classname="InstallTaoTask" />
+    <typedef name="taoDbConfig" classname="TaoDbConfig" />
+    <typedef name="generisConfig" classname="GenerisConfig" />
+    <typedef name="taoConfig" classname="TaoConfig" />
+    <target name="install" description="install tao">
+        <property name="extensions_list" value="funcAcl,generis,ltiDeliveryProvider,qtiItemPci,tao,taoCe,taoDelivery,taoGroups,taoItems,taoLti,taoLtiBasicOutcome,taoOpenWebItem,taoQtiItem,taoQtiTest,taoOutcomeRds,taoOutcomeUi,taoResultServer,taoSimpleDelivery,taoTestTaker,taoTests,taoWfTest,wfAuthoring,wfEngine"
+        />
+
+        <taoinstall taoPath="${src.dir.resolved}" >
+            <taoConfig
+                login="${user.login}"
+                pass="${user.pass}">
+            <taoDbConfig
+                dbDriver="${db.driver}"
+                dbHost="${db.host}"
+                dbUser="${db.user}"
+                dbPass="${db.pass}"
+                dbName="${db.name}"
+            />
+            <generisConfig
+                instanceName="${module.name}"
+                moduleUrl="${module.url}"
+                moduleNs="${module.namespace}"
+                moduleMode="${module.mode}"
+                dataPath="${src.dir.resolved}/data/"
+                extensions="${extensions_list}"
+            />
+            </taoConfig>
+        </taoinstall>
+    </target>
+
 	<target name="build-js">
-      <touch file="${src.dir.resolved}/taoQtiItem/views/js/mathjax/MathJax.js" />
-  		<exec 
-  			command="npm install" 
-  			dir="${src.dir.resolved}/tao/views/build" 
+        <copy
+            file="${src.dir.resolved}/taoQtiItem/views/js/MathJaxFallback.js"
+            tofile="${src.dir.resolved}/taoQtiItem/views/js/mathjax/MathJax.js"
+            overwrite="true"
+        />
+  		<exec
+  			command="npm install"
+  			dir="${src.dir.resolved}/tao/views/build"
+            checkreturn="true"
+            logoutput="true"
   		/>
-  		<exec 
-  			command="grunt build" 
-  			dir="${src.dir.resolved}/tao/views/build" 
+  		<exec
+  			command="grunt bundleall"
+  			dir="${src.dir.resolved}/tao/views/build"
+            checkreturn="true"
+            logoutput="true"
   		/>
   </target>
 
-  <property name="extension_with_js" 
+  <property name="extension_with_js"
       value="
         funcAcl,
         generisHard,
@@ -70,7 +113,7 @@
         wfAuthoring,
         wfEngine
         " />
-  	
+
   	<target name="push">
   		<foreach list="${extension_with_js}" param="extension" target="push_one" />
   	</target>
@@ -82,9 +125,9 @@
       <echo msg="Push ${extension}" />
 
   		<includepath classpath="task" />
-  		<taskdef name="gitdiff" classname="GitDiffTask" /> 
+  		<taskdef name="gitdiff" classname="GitDiffTask" />
 
-  		<gitdiff 
+  		<gitdiff
   			repository="${src.dir.resolved}/${extension}"
   			nameOnly="true"
   			outputproperty="files_to_commit"
@@ -101,8 +144,8 @@
           <if>
             <equals arg1="${extension}" arg2="taoQtiItem" />
             <then>
-            <property 
-              name="fileToAdd" 
+            <property
+              name="fileToAdd"
               value="views/js/controllers.min.js views/css/*.css views/js/runtime/*.min.js" />
               <fileset dir="${src.dir.resolved}/${extension}" id="filesetToAdd">
                 <patternset>
@@ -117,8 +160,8 @@
             <if>
               <equals arg1="${extension}" arg2="tao" />
               <then>
-                  <property 
-                    name="fileToAdd" 
+                  <property
+                    name="fileToAdd"
                     value="views/js/controllers.min.js views/css/*.css views/js/main.min.js" />
                   <fileset dir="${src.dir.resolved}/${extension}" id="filesetToAdd">
                     <patternset>
@@ -130,35 +173,35 @@
               </then>
                <!-- other case -->
               <else>
-                <property 
-                  name="fileToAdd" 
+                <property
+                  name="fileToAdd"
                   value="views/js/controllers.min.js views/css/*.css views/js/main.min.js" />
                   <fileset dir="${src.dir.resolved}/${extension}" id="filesetToAdd">
                     <patternset>
                       <include name="views/js/controllers.min.js" />
-                      <include name="views/css/*.css" />                      
+                      <include name="views/css/*.css" />
                     </patternset>
                   </fileset>
               </else>
             </if>
           </else>
         </if>
-          
-        <exec 
-            command="git add ${fileToAdd}" 
-            logoutput="true" 
-            passthru="true" 
-            dir="${src.dir.resolved}/${extension}" 
+
+        <exec
+            command="git add ${fileToAdd}"
+            logoutput="true"
+            passthru="true"
+            dir="${src.dir.resolved}/${extension}"
           />
   			<tstamp>
-        				<format pattern="%H:%M:%S the %d/%m/%Y " property="build.time" />  
+        				<format pattern="%H:%M:%S the %d/%m/%Y " property="build.time" />
 				</tstamp>
-  				<gitcommit 
+  				<gitcommit
 	  			repository="${src.dir.resolved}/${extension}"
 	  			message="Automatic js build done at ${build.time}"
           quiet="true"
           >
-            <fileset refid="filesetToAdd" /> 
+            <fileset refid="filesetToAdd" />
         </gitcommit>
   			</else>
   		</if>
@@ -167,7 +210,7 @@
         repository="${src.dir.resolved}/${extension}"
         destination="origin" />
 
-  			
+
   	</target>
 
   	<target name="reset_one">
@@ -175,11 +218,11 @@
   			<isset property="extension"/>
   			<then>
 		  		<echo msg="reseting ${extension}" />
-		  		<exec 
-		  			command="git reset --hard" 
-		  			logoutput="true" 
-		  			passthru="true" 
-		  			dir="${src.dir.resolved}/${extension}" 
+		  		<exec
+		  			command="git reset --hard"
+		  			logoutput="true"
+		  			passthru="true"
+		  			dir="${src.dir.resolved}/${extension}"
 		  		/>
 	  		</then>
 	  		<else>
@@ -190,6 +233,6 @@
 
   	</target>
 
-    <target name="build" depends="clone,build-js,push" />
+    <target name="build" depends="clone,install,build-js" />
 
 </project>
