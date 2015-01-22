@@ -1,0 +1,188 @@
+<!--
+ Keep the reset and push task somewhere until using them
+-->
+
+<project name="build tao js" default="build" basedir=".">
+
+    <property file="../build.properties" />
+
+	<target name="help">
+		<echo msg ="Available Command : " />
+		<exec executable="phing" passthru="true">
+			<arg value="-l" />
+		</exec>
+	</target>
+
+
+	<resolvepath propertyName="src.dir.resolved" file="src" />
+	<resolvepath propertyName="reports.dir.resolved" file="reports" />
+
+	<target name="clone" depends="clean,prepare">
+		<gitclone repository="git@github.com:oat-sa/package-tao.git" targetPath="src" />
+		<gitfetch
+			repository="${src.dir.resolved}"
+			source="origin"
+			refspec="develop:develop"
+		/>
+		<gitcheckout
+    		repository="${src.dir.resolved}"
+    		branchname="develop"
+    	/>
+		<composer command="install" composer="/usr/local/bin/composer">
+			 <arg value="--working-dir" />
+			 <arg path="${src.dir.resolved}" />
+		</composer>
+	</target>
+
+
+	<includepath classpath="task" />
+
+  	<target name="push">
+  		<foreach list="${extension_with_js}" param="extension" target="push_one" />
+  	</target>
+  	<target name="reset">
+  		<foreach list="${extension_with_js}" param="extension" target="reset_one" />
+  	</target>
+
+    <property name="extension_with_js"
+      value="
+        funcAcl,
+        generisHard,
+        ltiDeliveryProvider,
+        ontoBrowser,
+        tao,
+        taoCampaign,
+        taoCe,
+        taoDelivery,
+        taoDevTools,
+        taoGroups,
+        taoItems,
+        taoLti,
+        taoOpenWebItem,
+        taoQtiItem,
+        taoQtiTest,
+        taoResultServer,
+        taoResults,
+        taoSimpleDelivery,
+        taoSubjects,
+        taoTests,
+        taoWfAdvTest,
+        taoWfTest,
+        wfAuthoring,
+        wfEngine
+        " />
+  	<target name="push_one">
+      <echo msg="Push ${extension}" />
+
+  		<includepath classpath="task" />
+  		<taskdef name="gitdiff" classname="GitDiffTask" />
+
+  		<gitdiff
+  			repository="${src.dir.resolved}/${extension}"
+  			nameOnly="true"
+  			outputproperty="files_to_commit"
+  			/>
+  		<!-- check if file has been modified if empty skip-->
+      <if>
+  			<equals arg1="${files_to_commit}" arg2="" />
+  			<then>
+  				<echo msg="noting to commit" />
+  			</then>
+
+  			<else>
+          <!-- Define secpial command for taoQtiitem and tao extension -->
+          <if>
+            <equals arg1="${extension}" arg2="taoQtiItem" />
+            <then>
+            <property
+              name="fileToAdd"
+              value="views/js/controllers.min.js views/css/*.css views/js/runtime/*.min.js" />
+              <fileset dir="${src.dir.resolved}/${extension}" id="filesetToAdd">
+                <patternset>
+                  <include name="views/js/controllers.min.js" />
+                  <include name="views/css/*.css" />
+                  <include name="views/js/runtime/*.min.js" />
+                </patternset>
+              </fileset>
+            </then>
+          <else>
+            <!-- Define secpial command for tao extension -->
+            <if>
+              <equals arg1="${extension}" arg2="tao" />
+              <then>
+                  <property
+                    name="fileToAdd"
+                    value="views/js/controllers.min.js views/css/*.css views/js/main.min.js" />
+                  <fileset dir="${src.dir.resolved}/${extension}" id="filesetToAdd">
+                    <patternset>
+                      <include name="views/js/controllers.min.js" />
+                      <include name="views/css/*.css" />
+                      <include name="views/js/main.min.js" />
+                    </patternset>
+                  </fileset>
+              </then>
+               <!-- other case -->
+              <else>
+                <property
+                  name="fileToAdd"
+                  value="views/js/controllers.min.js views/css/*.css views/js/main.min.js" />
+                  <fileset dir="${src.dir.resolved}/${extension}" id="filesetToAdd">
+                    <patternset>
+                      <include name="views/js/controllers.min.js" />
+                      <include name="views/css/*.css" />
+                    </patternset>
+                  </fileset>
+              </else>
+            </if>
+          </else>
+        </if>
+
+        <exec
+            command="git add ${fileToAdd}"
+            logoutput="true"
+            passthru="true"
+            dir="${src.dir.resolved}/${extension}"
+          />
+  			<tstamp>
+                <format pattern="%H:%M:%S the %d/%m/%Y " property="build.time" />
+            </tstamp>
+            <gitcommit
+	  			repository="${src.dir.resolved}/${extension}"
+	  			message="Automatic js build done at ${build.time}"
+              quiet="true"
+              >
+            <fileset refid="filesetToAdd" />
+        </gitcommit>
+  			</else>
+  		</if>
+
+      <gitpush
+        repository="${src.dir.resolved}/${extension}"
+        destination="origin" />
+
+
+  	</target>
+
+  	<target name="reset_one">
+  		<if>
+  			<isset property="extension"/>
+  			<then>
+		  		<echo msg="reseting ${extension}" />
+		  		<exec
+		  			command="git reset --hard"
+		  			logoutput="true"
+		  			passthru="true"
+		  			dir="${src.dir.resolved}/${extension}"
+		  		/>
+	  		</then>
+	  		<else>
+	  			<echo msg="target reset one should not be call alone" />
+	  		</else>
+  		</if>
+
+
+  	</target>
+
+    <target name="build" depends="clone,install,build-js" />
+
+</project>

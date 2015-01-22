@@ -1,48 +1,52 @@
 <project name="build tao js" default="build" basedir=".">
 
+    <includepath classpath="task" />
     <property file="../build.properties" />
+    <property name="extensions_list" value="funcAcl,generis,ltiDeliveryProvider,qtiItemPci,tao,taoCe,taoDelivery,taoGroups,taoItems,taoLti,taoLtiBasicOutcome,taoOpenWebItem,taoQtiItem,taoQtiTest,taoOutcomeRds,taoOutcomeUi,taoResultServer,taoSimpleDelivery,taoTestTaker,taoTests,taoWfTest,wfAuthoring,wfEngine" />
 
-	<target name="help">
-		<echo msg ="Available Command : " />
-		<exec executable="phing" passthru="true">
-			<arg value="-l" />
-		</exec>
-	</target>
+    <target name="help">
+        <echo msg="Available Command : " />
+        <exec executable="phing" passthru="true">
+            <arg value="-l" />
+        </exec>
+    </target>
 
-	<target name="clean">
-		<delete dir="src" />
-	</target>
-	<target name="prepare">
-			<mkdir dir="src" />
-	</target>
-	<resolvepath propertyName="src.dir.resolved" file="src" />
+    <target name="clean">
+        <delete dir="src" />
+        <delete dir="reports" />
+    </target>
 
-	<target name="clone" depends="clean,prepare">
-		<gitclone repository="git@github.com:oat-sa/package-tao.git" targetPath="src" />
-		<gitfetch
-			repository="${src.dir.resolved}"
-			source="origin"
-			refspec="develop:develop"
-		/>
-		<gitcheckout
-    		repository="${src.dir.resolved}"
-    		branchname="develop"
-    	/>
-		<composer command="install" composer="/usr/local/bin/composer">
-			 <arg value="--working-dir" />
-			 <arg path="${src.dir.resolved}" />
-		</composer>
-	</target>
+    <target name="prepare">
+        <mkdir dir="src" />
+        <mkdir dir="reports" />
+    </target>
 
-	<includepath classpath="task" />
+    <resolvepath propertyName="src.dir.resolved" file="src" />
+    <resolvepath propertyName="reports.dir.resolved" file="reports" />
+
+    <target name="clone" depends="clean,prepare">
+        <gitclone repository="git@github.com:oat-sa/package-tao.git" targetPath="src" />
+        <gitfetch
+            repository="${src.dir.resolved}"
+            source="origin"
+            refspec="develop:develop"
+        />
+        <gitcheckout
+            repository="${src.dir.resolved}"
+            branchname="develop"
+        />
+        <composer command="install" composer="/usr/local/bin/composer">
+             <arg value="--working-dir" />
+             <arg path="${src.dir.resolved}" />
+        </composer>
+    </target>
+
+
     <taskdef name="taoinstall" classname="InstallTaoTask" />
     <typedef name="taoDbConfig" classname="TaoDbConfig" />
     <typedef name="generisConfig" classname="GenerisConfig" />
     <typedef name="taoConfig" classname="TaoConfig" />
     <target name="install" description="install tao">
-        <property name="extensions_list" value="funcAcl,generis,ltiDeliveryProvider,qtiItemPci,tao,taoCe,taoDelivery,taoGroups,taoItems,taoLti,taoLtiBasicOutcome,taoOpenWebItem,taoQtiItem,taoQtiTest,taoOutcomeRds,taoOutcomeUi,taoResultServer,taoSimpleDelivery,taoTestTaker,taoTests,taoWfTest,wfAuthoring,wfEngine"
-        />
-
         <taoinstall taoPath="${src.dir.resolved}" >
             <taoConfig
                 login="${user.login}"
@@ -66,174 +70,55 @@
         </taoinstall>
     </target>
 
-	<target name="build-js">
+    <target name="build-js">
         <copy
             file="${src.dir.resolved}/taoQtiItem/views/js/MathJaxFallback.js"
             tofile="${src.dir.resolved}/taoQtiItem/views/js/mathjax/MathJax.js"
             overwrite="true"
         />
-  		<exec
-  			command="npm install"
-  			dir="${src.dir.resolved}/tao/views/build"
-            checkreturn="true"
-            logoutput="true"
-  		/>
-		<echo msg ="Compile JS" />
-  		<exec
-  			command="npm run bundle"
-  			dir="${src.dir.resolved}/tao/views/build"
-            checkreturn="true"
-            logoutput="true"
-  		/>
-  </target>
-
-  <property name="extension_with_js"
-      value="
-        funcAcl,
-        generisHard,
-        ltiDeliveryProvider,
-        ontoBrowser,
-        tao,
-        taoCampaign,
-        taoCe,
-        taoDelivery,
-        taoDevTools,
-        taoGroups,
-        taoItems,
-        taoLti,
-        taoOpenWebItem,
-        taoQtiItem,
-        taoQtiTest,
-        taoResultServer,
-        taoResults,
-        taoSimpleDelivery,
-        taoSubjects,
-        taoTests,
-        taoWfAdvTest,
-        taoWfTest,
-        wfAuthoring,
-        wfEngine
-        " />
-
-  	<target name="push">
-  		<foreach list="${extension_with_js}" param="extension" target="push_one" />
-  	</target>
-  	<target name="reset">
-  		<foreach list="${extension_with_js}" param="extension" target="reset_one" />
-  	</target>
-
-  	<target name="push_one">
-      <echo msg="Push ${extension}" />
-
-  		<includepath classpath="task" />
-  		<taskdef name="gitdiff" classname="GitDiffTask" />
-
-  		<gitdiff
-  			repository="${src.dir.resolved}/${extension}"
-  			nameOnly="true"
-  			outputproperty="files_to_commit"
-  			/>
-  		<!-- check if file has been modified if empty skip-->
-      <if>
-  			<equals arg1="${files_to_commit}" arg2="" />
-  			<then>
-  				<echo msg="noting to commit" />
-  			</then>
-
-  			<else>
-          <!-- Define secpial command for taoQtiitem and tao extension -->
-          <if>
-            <equals arg1="${extension}" arg2="taoQtiItem" />
-            <then>
-            <property
-              name="fileToAdd"
-              value="views/js/controllers.min.js views/css/*.css views/js/runtime/*.min.js" />
-              <fileset dir="${src.dir.resolved}/${extension}" id="filesetToAdd">
-                <patternset>
-                  <include name="views/js/controllers.min.js" />
-                  <include name="views/css/*.css" />
-                  <include name="views/js/runtime/*.min.js" />
-                </patternset>
-              </fileset>
-            </then>
-          <else>
-            <!-- Define secpial command for tao extension -->
-            <if>
-              <equals arg1="${extension}" arg2="tao" />
-              <then>
-                  <property
-                    name="fileToAdd"
-                    value="views/js/controllers.min.js views/css/*.css views/js/main.min.js" />
-                  <fileset dir="${src.dir.resolved}/${extension}" id="filesetToAdd">
-                    <patternset>
-                      <include name="views/js/controllers.min.js" />
-                      <include name="views/css/*.css" />
-                      <include name="views/js/main.min.js" />
-                    </patternset>
-                  </fileset>
-              </then>
-               <!-- other case -->
-              <else>
-                <property
-                  name="fileToAdd"
-                  value="views/js/controllers.min.js views/css/*.css views/js/main.min.js" />
-                  <fileset dir="${src.dir.resolved}/${extension}" id="filesetToAdd">
-                    <patternset>
-                      <include name="views/js/controllers.min.js" />
-                      <include name="views/css/*.css" />
-                    </patternset>
-                  </fileset>
-              </else>
-            </if>
-          </else>
-        </if>
 
         <exec
-            command="git add ${fileToAdd}"
+            command="npm install"
+            dir="${src.dir.resolved}/tao/views/build"
+            checkreturn="true"
             logoutput="true"
-            passthru="true"
-            dir="${src.dir.resolved}/${extension}"
-          />
-  			<tstamp>
-        				<format pattern="%H:%M:%S the %d/%m/%Y " property="build.time" />
-				</tstamp>
-  				<gitcommit
-	  			repository="${src.dir.resolved}/${extension}"
-	  			message="Automatic js build done at ${build.time}"
-          quiet="true"
-          >
-            <fileset refid="filesetToAdd" />
-        </gitcommit>
-  			</else>
-  		</if>
+        />
 
-      <gitpush
-        repository="${src.dir.resolved}/${extension}"
-        destination="origin" />
+        <echo msg="Compile JS" />
+        <exec
+            command="npm run bundle"
+            dir="${src.dir.resolved}/tao/views/build"
+            checkreturn="true"
+            logoutput="true"
+        />
 
+        <echo msg="Check SASS runtime" />
+        <exec
+            command="sass version"
+            checkreturn="true"
+            logoutput="true"
+        />
 
-  	</target>
+        <echo msg="Compile SASS" />
+        <exec
+            command="npm run sass"
+            dir="${src.dir.resolved}/tao/views/build"
+            checkreturn="true"
+            logoutput="true"
+        />
 
-  	<target name="reset_one">
-  		<if>
-  			<isset property="extension"/>
-  			<then>
-		  		<echo msg="reseting ${extension}" />
-		  		<exec
-		  			command="git reset --hard"
-		  			logoutput="true"
-		  			passthru="true"
-		  			dir="${src.dir.resolved}/${extension}"
-		  		/>
-	  		</then>
-	  		<else>
-	  			<echo msg="target reset one should not be call alone" />
-	  		</else>
-  		</if>
+        <foreach list="${extensions_list}" param="extension" target="jshint" />
+    </target>
 
-
-  	</target>
+    <target name="jshint">
+        <echo msg="Lint ${extension}" />
+        <exec
+            command="grunt jshint:extensionreport --extension ${extension} --reports ${reports.dir.resolved} --no-color"
+            dir="${src.dir.resolved}/tao/views/build"
+            checkreturn="false"
+            logoutput="true"
+        />
+    </target>
 
     <target name="build" depends="clone,install,build-js" />
-
 </project>
