@@ -78,8 +78,9 @@
             checkreturn="true"
             logoutput="true"
   		/>
+		<echo msg ="Compile JS" />
   		<exec
-  			command="grunt bundleall"
+  			command="npm run bundle"
   			dir="${src.dir.resolved}/tao/views/build"
             checkreturn="true"
             logoutput="true"
