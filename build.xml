@@ -94,7 +94,7 @@
 
         <echo msg="Check SASS runtime" />
         <exec
-            command="sass version"
+            command="sass --version"
             checkreturn="true"
             logoutput="true"
         />
