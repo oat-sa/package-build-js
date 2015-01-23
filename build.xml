@@ -78,7 +78,7 @@
         />
 
         <exec
-            command="npm install"
+            command="npm --no-color install"
             dir="${src.dir.resolved}/tao/views/build"
             checkreturn="true"
             logoutput="true"
