@@ -42,38 +42,19 @@
     </target>
 
 
-    <taskdef name="taoinstall" classname="InstallTaoTask" />
-    <typedef name="taoDbConfig" classname="TaoDbConfig" />
-    <typedef name="generisConfig" classname="GenerisConfig" />
-    <typedef name="taoConfig" classname="TaoConfig" />
-    <target name="install" description="install tao">
-        <taoinstall taoPath="${src.dir.resolved}" >
-            <taoConfig
-                login="${user.login}"
-                pass="${user.pass}">
-            <taoDbConfig
-                dbDriver="${db.driver}"
-                dbHost="${db.host}"
-                dbUser="${db.user}"
-                dbPass="${db.pass}"
-                dbName="${db.name}"
-            />
-            <generisConfig
-                instanceName="${module.name}"
-                moduleUrl="${module.url}"
-                moduleNs="${module.namespace}"
-                moduleMode="${module.mode}"
-                dataPath="${src.dir.resolved}/data/"
-                extensions="${extensions_list}"
-            />
-            </taoConfig>
-        </taoinstall>
-    </target>
 
     <target name="build-js">
+        
+        
         <copy
             file="${src.dir.resolved}/taoQtiItem/views/js/MathJaxFallback.js"
             tofile="${src.dir.resolved}/taoQtiItem/views/js/mathjax/MathJax.js"
+            overwrite="true"
+        />
+        
+        <copy
+            file="resources/messages.json"
+            tofile="${src.dir.resolved}/tao/views/locales/en-US/messages.json"
             overwrite="true"
         />
 
@@ -120,5 +101,5 @@
         />
     </target>
 
-    <target name="build" depends="clone,install,build-js" />
+    <target name="build" depends="clone,build-js" />
 </project>
