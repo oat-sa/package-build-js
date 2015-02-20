@@ -44,14 +44,14 @@
 
 
     <target name="build-js">
-        
-        
+
+
         <copy
             file="${src.dir.resolved}/taoQtiItem/views/js/MathJaxFallback.js"
             tofile="${src.dir.resolved}/taoQtiItem/views/js/mathjax/MathJax.js"
             overwrite="true"
         />
-        
+
         <copy
             file="resources/messages.json"
             tofile="${src.dir.resolved}/tao/views/locales/en-US/messages.json"
@@ -99,6 +99,16 @@
             checkreturn="false"
             logoutput="true"
         />
+        <reflexive>
+            <fileset dir="reports">
+                <include pattern="*-checkstyle.xml" />
+            </fileset>
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="\.\./src/" replace="src/" />
+                </replaceregexp>
+            </filterchain>
+        </reflexive>
     </target>
 
     <target name="build" depends="clone,build-js" />
