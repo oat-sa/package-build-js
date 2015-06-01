@@ -89,6 +89,15 @@
         />
 
         <foreach list="${extensions_list}" param="extension" target="jshint" />
+
+        <echo msg="Run tests" />
+        <exec
+            command="grunt testall --no-color --force --reports ${reports.dir.resolved}"
+            dir="${src.dir.resolved}/tao/views/build"
+            checkreturn="true"
+            logoutput="true"
+        />
+
     </target>
 
     <target name="jshint">
