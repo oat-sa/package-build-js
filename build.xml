@@ -45,7 +45,6 @@
 
     <target name="build-js">
 
-
         <copy
             file="${src.dir.resolved}/taoQtiItem/views/js/MathJaxFallback.js"
             tofile="${src.dir.resolved}/taoQtiItem/views/js/mathjax/MathJax.js"
@@ -57,6 +56,15 @@
             tofile="${src.dir.resolved}/tao/views/locales/en-US/messages.json"
             overwrite="true"
         />
+
+        <copy todir="${src.dir.resolved}/taoQtiItem/views/js/portableSharedLibraries"
+            overwrite="true">
+            <fileset dir="${src.dir.resolved}/taoQtiItem/install/scripts/portableSharedLibraries">
+                <include name="**/*.js" />
+                <include name="**/*.css" />
+                <include name="**/*.tpl" />
+            </fileset>
+        </copy>
 
         <exec
             command="npm --no-color install"
