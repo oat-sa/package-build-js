@@ -2,7 +2,6 @@
 
     <includepath classpath="task" />
     <property file="../build.properties" />
-    <property name="extensions_list" value="funcAcl,generis,ltiDeliveryProvider,qtiItemPci,tao,taoCe,taoDelivery,taoGroups,taoItems,taoLti,taoLtiBasicOutcome,taoOpenWebItem,taoQtiItem,taoQtiTest,taoOutcomeRds,taoOutcomeUi,taoResultServer,taoSimpleDelivery,taoTestTaker,taoTests,taoWfTest,wfAuthoring,wfEngine" />
 
     <target name="help">
         <echo msg="Available Command : " />
