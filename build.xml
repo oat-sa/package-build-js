@@ -21,7 +21,7 @@
 
     <target name="clone" depends="clean,prepare" description="retrieve the target distribution">
 
-        <gitclone repository="git@github.com:oat-sa/package-tao.git" targetPath="src" />
+        <gitclone repository="git@github.com:oat-sa/${repo}.git" targetPath="src" />
 
         <gitfetch
             repository="${src.dir.resolved}"
