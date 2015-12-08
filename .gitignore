@@ -2,3 +2,5 @@ src
 reports
 build.properties
 .phing_targets
+vendor
+composer.lock
