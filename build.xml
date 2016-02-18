@@ -1,21 +1,17 @@
+<!--
+    requires properties :
+     - repo : name of the OAT repository to retrieve the TAO distribution from (needs a composer.json)
+     - branch : repository branch
+     - extensions: comma separated list of the TAO extensions to include in the build
+-->
 <project name="build tao js" default="build" basedir=".">
 
-    <includepath classpath="task" />
-    <property file="../build.properties" />
-
-    <target name="help">
-        <echo msg="Available Command : " />
-        <exec executable="phing" passthru="true">
-            <arg value="-l" />
-        </exec>
-    </target>
-
-    <target name="clean">
+    <target name="clean" description="clean up the build">
         <delete dir="src" />
         <delete dir="reports" />
     </target>
 
-    <target name="prepare">
+    <target name="prepare" description="prepare the build">
         <mkdir dir="src" />
         <mkdir dir="reports" />
     </target>
@@ -23,26 +19,28 @@
     <resolvepath propertyName="src.dir.resolved" file="src" />
     <resolvepath propertyName="reports.dir.resolved" file="reports" />
 
-    <target name="clone" depends="clean,prepare">
-        <gitclone repository="git@github.com:oat-sa/package-tao.git" targetPath="src" />
+    <target name="clone" depends="clean,prepare" description="retrieve the target distribution">
+
+        <gitclone repository="git@github.com:oat-sa/${repo}.git" targetPath="src" />
+
         <gitfetch
             repository="${src.dir.resolved}"
             source="origin"
-            refspec="develop:develop"
+            refspec="${branch}:${branch}"
         />
         <gitcheckout
             repository="${src.dir.resolved}"
-            branchname="develop"
+            branchname="${branch}"
         />
-        <composer command="install" composer="/usr/local/bin/composer">
+        <composer command="install">
              <arg value="--working-dir" />
              <arg path="${src.dir.resolved}" />
-        </composer>
+         </composer>
     </target>
 
 
 
-    <target name="build-js">
+    <target name="build-js" description="Bundle the JavaScript modules, Compile SASS to CSS, run the tests and the quality checks">
 
         <copy
             file="${src.dir.resolved}/taoQtiItem/views/js/MathJaxFallback.js"
@@ -95,7 +93,7 @@
             logoutput="true"
         />
 
-        <foreach list="${extensions_list}" param="extension" target="jshint" />
+        <foreach list="${extensions}" param="extension" target="jshint" />
 
         <echo msg="Run tests" />
         <exec
@@ -107,7 +105,7 @@
 
     </target>
 
-    <target name="jshint">
+    <target name="jshint" description="Run quality checks">
         <echo msg="Lint ${extension}" />
         <exec
             command="grunt jshint:extensionreport --extension ${extension} --reports ${reports.dir.resolved} --no-color"
@@ -127,5 +125,5 @@
         </reflexive>
     </target>
 
-    <target name="build" depends="clone,build-js" />
+    <target name="build" depends="clone,build-js"  description="The full build sequence" />
 </project>

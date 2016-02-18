@@ -1,0 +1,7 @@
+{
+  "minimum-stability": "beta",
+  "require": {
+    "phing/phing": "^2.13",
+    "pear/versionControl_git": "@dev"
+  }
+}
