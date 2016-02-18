@@ -101,7 +101,7 @@
         <exec
             command="grunt testall --no-color --force --reports ${reports.dir.resolved}"
             dir="${src.dir.resolved}/tao/views/build"
-            checkreturn="true"
+            checkreturn="false"
             logoutput="true"
         />
 
