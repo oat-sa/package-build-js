@@ -97,7 +97,7 @@
 
         <echo msg="Run tests" />
         <exec
-            command="grunt testall --no-color --force --reports ${reports.dir.resolved}"
+            command="grunt testall --no-color --force --reports=${reports.dir.resolved}"
             dir="${src.dir.resolved}/tao/views/build"
             checkreturn="false"
             logoutput="true"
@@ -108,7 +108,7 @@
     <target name="jshint" description="Run quality checks">
         <echo msg="Lint ${extension}" />
         <exec
-            command="grunt jshint:extensionreport --extension ${extension} --reports ${reports.dir.resolved} --no-color"
+            command="grunt jshint:extensionreport --extension=${extension} --reports=${reports.dir.resolved} --no-color --force"
             dir="${src.dir.resolved}/tao/views/build"
             checkreturn="false"
             logoutput="true"
