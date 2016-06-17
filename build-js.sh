@@ -1,4 +1,5 @@
 #!/bin/bash
+BASEDIR=`pwd`
 cd src/tao/views/build
 export PATH="$PATH:/var/lib/jenkins/.nvm/versions/node/v6.2.1/bin"
 npm --version
@@ -10,4 +11,4 @@ echo "Compile JS"
 npm run bundle        
 echo "Check SASS runtime"
 npm run sass
-grunt testall --no-color --force --reports=reports
+grunt testall --no-color --force --reports=$BASEDIR/reports
