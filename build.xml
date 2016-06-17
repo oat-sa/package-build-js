@@ -63,7 +63,7 @@
             </fileset>
         </copy>
         
-        <exec command='export PATH="$PATH:/var/lib/jenkins/.nvm/versions/node/v6.2.1/bin"' />
+        <exec command="./export.sh" logoutput="true"/>
 
         <exec
             command="npm --no-color install"
