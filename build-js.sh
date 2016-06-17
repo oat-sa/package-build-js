@@ -1,4 +1,5 @@
 #!/bin/bash
+cd src/tao/views/build
 export PATH="$PATH:/var/lib/jenkins/.nvm/versions/node/v6.2.1/bin"
 npm --version
 sass --version

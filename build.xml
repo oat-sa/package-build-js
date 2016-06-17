@@ -64,7 +64,6 @@
         </copy>
         
         <exec command="./build-js.sh"           
-            dir="${src.dir.resolved}/tao/views/build"
             checkreturn="false"
             logoutput="true"/>
 
@@ -78,7 +77,6 @@
         <echo msg="Lint ${extension}" />
         <exec
             command="./jshint.sh ${extension}"
-            dir="${src.dir.resolved}/tao/views/build"
             checkreturn="false"
             logoutput="true"
         />
