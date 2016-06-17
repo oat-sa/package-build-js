@@ -62,9 +62,11 @@
                 <include name="**/*.tpl" />
             </fileset>
         </copy>
+        
+        <exec command='export PATH="$PATH:/var/lib/jenkins/.nvm/versions/node/v6.2.1/bin"' />
 
         <exec
-            command="/var/lib/jenkins/bin/npm --no-color install"
+            command="npm --no-color install"
             dir="${src.dir.resolved}/tao/views/build"
             checkreturn="true"
             logoutput="true"
@@ -72,7 +74,7 @@
 
         <echo msg="Compile JS" />
         <exec
-            command="/var/lib/jenkins/bin/npm run bundle"
+            command="npm run bundle"
             dir="${src.dir.resolved}/tao/views/build"
             checkreturn="true"
             logoutput="true"
@@ -87,7 +89,7 @@
 
         <echo msg="Compile SASS" />
         <exec
-            command="/var/lib/jenkins/bin/npm run sass"
+            command="npm run sass"
             dir="${src.dir.resolved}/tao/views/build"
             checkreturn="true"
             logoutput="true"
@@ -97,7 +99,7 @@
 
         <echo msg="Run tests" />
         <exec
-            command="/var/lib/jenkins/bin/grunt testall --no-color --force --reports=${reports.dir.resolved}"
+            command="grunt testall --no-color --force --reports=${reports.dir.resolved}"
             dir="${src.dir.resolved}/tao/views/build"
             checkreturn="false"
             logoutput="true"
@@ -108,7 +110,7 @@
     <target name="jshint" description="Run quality checks">
         <echo msg="Lint ${extension}" />
         <exec
-            command="/var/lib/jenkins/bin/grunt jshint:extensionreport --extension=${extension} --reports=${reports.dir.resolved} --no-color --force"
+            command="grunt jshint:extensionreport --extension=${extension} --reports=${reports.dir.resolved} --no-color --force"
             dir="${src.dir.resolved}/tao/views/build"
             checkreturn="false"
             logoutput="true"
