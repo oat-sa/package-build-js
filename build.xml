@@ -63,54 +63,21 @@
             </fileset>
         </copy>
         
-        <exec command="./export.sh" logoutput="true"/>
-
-        <exec
-            command="npm --no-color install"
-            dir="${src.dir.resolved}/tao/views/build"
-            checkreturn="true"
-            logoutput="true"
-        />
-
-        <echo msg="Compile JS" />
-        <exec
-            command="npm run bundle"
-            dir="${src.dir.resolved}/tao/views/build"
-            checkreturn="true"
-            logoutput="true"
-        />
-
-        <echo msg="Check SASS runtime" />
-        <exec
-            command="sass --version"
-            checkreturn="true"
-            logoutput="true"
-        />
-
-        <echo msg="Compile SASS" />
-        <exec
-            command="npm run sass"
-            dir="${src.dir.resolved}/tao/views/build"
-            checkreturn="true"
-            logoutput="true"
-        />
-
-        <foreach list="${extensions}" param="extension" target="jshint" />
-
-        <echo msg="Run tests" />
-        <exec
-            command="grunt testall --no-color --force --reports=${reports.dir.resolved}"
+        <exec command="./build-js.sh"           
             dir="${src.dir.resolved}/tao/views/build"
             checkreturn="false"
-            logoutput="true"
-        />
+            logoutput="true"/>
+
+     
+        <foreach list="${extensions}" param="extension" target="jshint" />
+
 
     </target>
 
     <target name="jshint" description="Run quality checks">
         <echo msg="Lint ${extension}" />
         <exec
-            command="grunt jshint:extensionreport --extension=${extension} --reports=${reports.dir.resolved} --no-color --force"
+            command="./jshint.sh ${extension}"
             dir="${src.dir.resolved}/tao/views/build"
             checkreturn="false"
             logoutput="true"
