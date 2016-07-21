@@ -68,15 +68,15 @@
             logoutput="true"/>
 
      
-        <foreach list="${extensions}" param="extension" target="jshint" />
+        <foreach list="${extensions}" param="extension" target="lint" />
 
 
     </target>
 
-    <target name="jshint" description="Run quality checks">
+    <target name="lint" description="Run quality checks">
         <echo msg="Lint ${extension}" />
         <exec
-            command="./jshint.sh ${extension}"
+            command="./lint.sh ${extension}"
             checkreturn="false"
             logoutput="true"
         />
