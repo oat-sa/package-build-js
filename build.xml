@@ -53,15 +53,6 @@
             tofile="${src.dir.resolved}/tao/views/locales/en-US/messages.json"
             overwrite="true"
         />
-
-        <copy todir="${src.dir.resolved}/taoQtiItem/views/js/portableSharedLibraries"
-            overwrite="true">
-            <fileset dir="${src.dir.resolved}/taoQtiItem/install/scripts/portableSharedLibraries">
-                <include name="**/*.js" />
-                <include name="**/*.css" />
-                <include name="**/*.tpl" />
-            </fileset>
-        </copy>
         
         <exec command="./build-js.sh"           
             checkreturn="false"
