@@ -53,12 +53,12 @@
             tofile="${src.dir.resolved}/tao/views/locales/en-US/messages.json"
             overwrite="true"
         />
-        
-        <exec command="./build-js.sh"           
+
+        <exec command="./build-js.sh"
             checkreturn="false"
             logoutput="true"/>
 
-     
+
         <foreach list="${extensions}" param="extension" target="lint" />
 
 

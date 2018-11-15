@@ -8,8 +8,7 @@ Phing Wrapper that enables you to run client side tools against a TAO distributi
 ### Required binaries
 
  - [git](https://git-scm.com/downloads)
- - [node.js](https://nodejs.org/en/download/)
- - [sass](http://sass-lang.com/install)
+ - [node.js](https://nodejs.org/en/download/) `>=v8.12.0`
 
 ### Project set up
 
@@ -23,12 +22,6 @@ Set up the project
 
 ```sh
 ./composer.phar install
-```
-
-Also check you have the following npm package installed globally:
-
-```sh
-npm install -g grunt-cli csso
 ```
 
 ## Run a build
